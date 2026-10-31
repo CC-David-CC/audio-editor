@@ -1,8 +1,8 @@
 # Audio Editor
 
 The Audio Editor embeds the upstream AudioMass editor in a per-window frame.
-Use the host's Open from Files and Save WAV controls for the account-scoped
-browser/server mirror. Saving creates a separate 16-bit WAV; existing files are
+Use Open from My files and Save WAV for the account-scoped
+browser/server mirror. Import from a computer through Files first. The editor checks that the browser can decode a selected file before replacing the current track. Saving creates a separate 16-bit WAV; existing files are
 version checked. The embedded app's download actions are disabled. Close warns
 when supported edit operations have unsaved changes. Audio decoding and effects
 run in the browser; audio is not sent to a separate editing service.
