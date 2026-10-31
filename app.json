@@ -43,5 +43,8 @@
     "node_modules/audiomass/THIRD_PARTY_NOTICES.md.txt",
     "node_modules/audiomass/index.html",
     "node_modules/audiomass/bootstrap.js"
-  ]
+  ],
+  "workers": {
+    "wav": "wav-worker.mjs"
+  }
 }

@@ -8,7 +8,7 @@ run in the browser; audio is not sent to a separate editing service.
 
 The Files integration supports a single audio track. AudioMass's multitrack
 session and its own session exports are not yet saved through Files; Save WAV
-reports that limitation rather than silently dropping tracks. This editor currently limits both input and encoded WAV output to 32 MiB, despite the account file service supporting larger files. Decoding and effects can require much more memory than the compressed input.
+reports that limitation rather than silently dropping tracks. Input and encoded WAV output are limited to 128 MiB. WAV encoding runs in a worker and can be cancelled; decoding and effects can require much more memory than the compressed input, so large files may still fail on a device with limited memory. A compressed file can also expand beyond the WAV output limit.
 Device audio codecs and memory limit which files can be decoded.
 
 AudioMass upstream and its bundled third-party notices are packaged with the
@@ -17,4 +17,4 @@ commit and verifies its SHA-256 before assembling ignored local dependencies;
 run it before building. The upstream source files and output bundles are not
 committed. Source: https://github.com/pkalogiros/AudioMass/tree/21f5ee1362a47be6f0dbe6e4969a15e43d21b044
 
-Local and live desktop and emulated-phone tests check upload, reversing actual audio samples, invalid-file recovery, close warning, stale-save protection, sync and fresh-session reopening. They do not cover every effect, multitrack saving, physical phone touch or codecs.
+Local and live desktop and emulated-phone tests check upload, reversing actual audio samples, invalid-file recovery, close warning, stale-save protection, sync and fresh-session reopening. An isolated local test also opens and saves an audio file larger than 32 MiB, verifies sample data and synchronizes it to the server. A separate worker test creates a 128 MiB WAV and verifies that larger output is rejected; that is not an end-to-end 128 MiB file test. Tests do not cover every effect, multitrack saving, physical phone touch or codecs.
