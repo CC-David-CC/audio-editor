@@ -42,7 +42,8 @@
     "node_modules/audiomass/LICENSE.txt",
     "node_modules/audiomass/THIRD_PARTY_NOTICES.md.txt",
     "node_modules/audiomass/index.html",
-    "node_modules/audiomass/bootstrap.js"
+    "node_modules/audiomass/bootstrap.js",
+    "node_modules/audiomass/frame.css"
   ],
   "workers": {
     "wav": "wav-worker.mjs"

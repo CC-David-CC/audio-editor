@@ -1,0 +1,7 @@
+/* AudioMass is embedded in a desktop window; keep its menus usable on touch. */
+@media (max-width: 600px) {
+  .pk_hdr { height: 44px; }
+  .pk_hdr .pk_btn > button { min-height: 44px; }
+  .pk_hdr .pk_btn .pk_menu { top: 42px; max-height: calc(100vh - 50px); }
+  .pk_hdr .pk_btn .pk_menu_el button { min-height: 44px; }
+}

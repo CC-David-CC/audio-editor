@@ -24,7 +24,8 @@ welcome.write_text(source.replace(needle,'\t// The desktop opens without an unso
 for name in ['LICENSE','THIRD_PARTY_NOTICES.md']:(root/(name+'.txt')).write_bytes(archive.extractfile(archive.getmember(prefix+name)).read())
 scripts=names[1:25]
 html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="main.css"></head><body><div id="app"></div>'+''.join('<script src="'+s+'"></script>' for s in scripts)+'<script src="bootstrap.js"></script></body></html>'
-(root/'index.html').write_text(html);(root/'bootstrap.js').write_bytes((HERE/'bootstrap.js').read_bytes())
-assets=['node_modules/audiomass/'+n for n in names+['LICENSE.txt','THIRD_PARTY_NOTICES.md.txt','index.html','bootstrap.js']]
-(HERE/'app.json').write_text(json.dumps({'assets':assets},indent=2)+'\n')
+html=html.replace('<link rel="stylesheet" href="main.css">','<link rel="stylesheet" href="main.css"><link rel="stylesheet" href="frame.css">')
+(root/'index.html').write_text(html);(root/'bootstrap.js').write_bytes((HERE/'bootstrap.js').read_bytes());(root/'frame.css').write_bytes((HERE/'frame.css').read_bytes())
+assets=['node_modules/audiomass/'+n for n in names+['LICENSE.txt','THIRD_PARTY_NOTICES.md.txt','index.html','bootstrap.js','frame.css']]
+(HERE/'app.json').write_text(json.dumps({'assets':assets,'workers':{'wav':'wav-worker.mjs'}},indent=2)+'\n')
 print('Prepared AudioMass',COMMIT)
