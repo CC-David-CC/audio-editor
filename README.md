@@ -35,3 +35,7 @@ The current release moves account-file actions into AudioMass’s File menu and 
 Re-running prepare.py preserves the WAV worker declaration. The prepared build was retested for save and reopen on desktop and emulated phone; its phone File menu and actions now have 44 px targets, checked with emulated taps. Physical phone behavior remains unverified.
 
 Live release 859caf0f2820d451752a6f213c7c5de4597a5f2c295813cb18efc2a9333ea9af serves the integrated File menu and touch sizing. Public registered-account desktop and emulated-phone tests passed menu actions, save options, cancel and concurrent-change checks, Save As, server sync and reopen. Their empty test homes were verified and both test accounts disabled. Physical phone touch remains unverified.
+
+Ctrl/Command+S while focused in AudioMass saves a WAV through My files. Local
+desktop and emulated-phone tests verified server-synced WAV samples; physical
+touch and Mac shortcuts remain unverified.
