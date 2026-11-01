@@ -28,6 +28,11 @@ A separate notice reports when My files detects that the opened source, or the m
 
 Choose **Try 440 Hz tone** to generate a one-second mono example locally without uploading a file or granting microphone access. It uses the browser audio rate and a short fade at each end; it is unsaved until exported as WAV. Loading it asks before discarding unsaved audio. Local desktop, emulated-phone and 4K and live emulated-phone account tests cover reverse, sample-checked WAV output, sync and fresh-session reopening.
 
+After a load error, a newly generated tone is still treated as unsaved. Local
+desktop and emulated-phone tests inject a load failure and check the close
+warning, sample-checked WAV save, server synchronization and reopening. This
+does not reproduce every possible browser or decoder failure.
+
 AudioMass effects that use asynchronous OfflineAudioContext rendering must finish before opening, replacing or saving the track; if one is still running, the editor asks you to wait and try again. A saved or opened file is the track restored with the desktop window. Starting a new unsaved example clears the prior file reference; the example itself is not recovered after a page reload unless saved. Local desktop, emulated-phone and 4K and live emulated-phone tests hold a Reverse render, verify Save waits, check the resulting WAV sample, and test both restored and unsaved window states. Other effects and physical touch remain unverified.
 
 Closing a window while an effect or WAV save is still in progress asks for
