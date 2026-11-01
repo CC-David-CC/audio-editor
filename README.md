@@ -67,3 +67,10 @@ decoded, its failed restore reference is cleared; the original file is left
 untouched. Local desktop and emulated-phone account tests cover invalid and
 missing WAV files, generating and saving a tone, server sync and refresh.
 Physical touch and audio hardware remain unverified.
+
+WAV Save As and the save-folder chooser serialize with other file operations.
+If the filename, audio content or buffer changes while either dialog is open,
+the stale selection is rejected and the user can try again. Local registered-
+account desktop and emulated-phone tests cover both stale choices, a successful
+WAV save, server sync and fresh-session reopen. The audio edit in the race was
+injected through an editor event; physical touch remains unverified.
