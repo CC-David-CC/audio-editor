@@ -86,3 +86,11 @@ registered-account desktop and phone-sized tests exercised keyboard activation,
 adding a track from My files, saving and syncing an editable project, and
 reopening it in a fresh session. Phone tests used simulated hardware keys;
 physical touch and assistive technology behavior remain unverified.
+
+After saving or opening a MultiTrack project, the mixdown dialog suggests a
+WAV alongside the project, named `<project>-mixdown.wav`. A different name or
+folder used for a successful export is remembered for that window. A fresh
+window suggests the opened project's name again. Local registered-account
+desktop and emulated-phone tests covered a real audio track, editable project,
+custom export destination, server sync and fresh-session project reopen.
+Physical touch and audio hardware were not tested.
