@@ -68,6 +68,16 @@ untouched. Local desktop and emulated-phone account tests cover invalid and
 missing WAV files, generating and saving a tone, server sync and refresh.
 Physical touch and audio hardware remain unverified.
 
+If a saved ordinary audio file is temporarily unavailable or conflicted while
+restoring, its reference is kept and **Retry saved audio** is offered. Unsaved
+scratch work asks before retry; `/Recording.wav` uses a separate
+`/Recording-recovery.wav` scratch destination. Local registered-account desktop
+and phone-sized tests injected a read failure, cancelled and accepted retry,
+reversed an actual 32 kHz WAV, checked samples and server synchronization, and
+reopened the result in a fresh browser. A concurrent regression run timed out
+while waiting for preview startup; sequential invalid/missing and MultiTrack
+retry runs passed. Physical phone and audio hardware remain unverified.
+
 WAV Save As and the save-folder chooser serialize with other file operations.
 If the filename, audio content or buffer changes while either dialog is open,
 the stale selection is rejected and the user can try again. Local registered-
