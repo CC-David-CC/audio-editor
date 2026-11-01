@@ -21,6 +21,15 @@ source=welcome.read_text()
 needle='\tPKAudioEditor._deps.Wlc ();\n\n}, 320);'
 if source.count(needle)!=1:raise RuntimeError('Unexpected AudioMass welcome startup')
 welcome.write_text(source.replace(needle,'\t// The desktop opens without an unsolicited welcome modal.\n\n}, 320);'))
+# AudioMass's original LoadSessionBuffer catches errors and returns success even
+# after modifying the current session. Expose a checked, rollback-capable entry
+# point for the desktop's already validated and decoded account projects.
+multitrack=root/'multitrack.js'
+source=multitrack.read_text()
+needle='\t\tq.getState = cloneState;\n'
+if source.count(needle)!=1:raise RuntimeError('Unexpected AudioMass multitrack API')
+adapter=(HERE/'multitrack-transaction.js').read_text()
+multitrack.write_text(source.replace(needle,needle+'\n'+adapter+'\n'))
 for name in ['LICENSE','THIRD_PARTY_NOTICES.md']:(root/(name+'.txt')).write_bytes(archive.extractfile(archive.getmember(prefix+name)).read())
 scripts=names[1:25]
 html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="main.css"></head><body><div id="app"></div>'+''.join('<script src="'+s+'"></script>' for s in scripts)+'<script src="bootstrap.js"></script></body></html>'
