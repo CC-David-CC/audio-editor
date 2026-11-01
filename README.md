@@ -127,3 +127,13 @@ two loud tracks, compared real-time Web Audio preview samples with the offline
 mix, checked both PCM warnings and float samples, synced the files, and reopened
 the editable project. The warning detects values beyond full scale, not every
 kind of distortion; physical speakers and touch devices were not tested.
+
+Single-file WAV saves also warn if 16- or 24-bit PCM encoding would clip
+samples above full scale. Cancel leaves the files unchanged; lower the volume,
+choose 32-bit float, or explicitly save the clipped output. If the track changes
+while the warning is open, saving stops. Local registered-account desktop and
+emulated-phone tests open a real float WAV containing +1.25 and −1.25 samples,
+check both PCM warnings, cancellation, a changed-track race, float output,
+server sync and fresh-session reopening. Mono and stereo checks also verify
+sample rate, frame count, channel count and channel order. Physical audio devices
+are untested.
