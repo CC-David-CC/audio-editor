@@ -14,6 +14,13 @@ for name in names:
  member=archive.getmember(prefix+'src/'+name)
  if not member.isfile():raise RuntimeError('Invalid archive member')
  target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(archive.extractfile(member).read())
+# Preserve the explicit Help → See Welcome Message action, but suppress the
+# delayed automatic welcome modal, which otherwise interrupts desktop actions.
+welcome=root/'welcome.js'
+source=welcome.read_text()
+needle='\tPKAudioEditor._deps.Wlc ();\n\n}, 320);'
+if source.count(needle)!=1:raise RuntimeError('Unexpected AudioMass welcome startup')
+welcome.write_text(source.replace(needle,'\t// The desktop opens without an unsolicited welcome modal.\n\n}, 320);'))
 for name in ['LICENSE','THIRD_PARTY_NOTICES.md']:(root/(name+'.txt')).write_bytes(archive.extractfile(archive.getmember(prefix+name)).read())
 scripts=names[1:25]
 html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="main.css"></head><body><div id="app"></div>'+''.join('<script src="'+s+'"></script>' for s in scripts)+'<script src="bootstrap.js"></script></body></html>'

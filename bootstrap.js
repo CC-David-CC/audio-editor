@@ -1,6 +1,6 @@
 // Keep exports inside the account-file workflow; the frame cannot download files.
 const nativeClick=HTMLAnchorElement.prototype.click;
-HTMLAnchorElement.prototype.click=function(){if(this.hasAttribute('download')){window.alert('Use Save WAV above the editor to save audio in Files.');return;}return nativeClick.call(this);};
+HTMLAnchorElement.prototype.click=function(){if(this.hasAttribute('download')){window.dispatchEvent(new Event('codi-download-blocked'));return;}return nativeClick.call(this);};
 // Streams belong to this window. Stop them on close, including a permission
 // request that resolves after the desktop has begun disposing the frame.
 const capturedStreams=new Set();let mediaReleased=false,mediaPending=0;
