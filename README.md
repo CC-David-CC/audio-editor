@@ -95,4 +95,15 @@ folder used for a successful export is remembered for that window. A fresh
 window suggests the opened project's name again. Local registered-account
 desktop and emulated-phone tests covered a real audio track, editable project,
 custom export destination, server sync and fresh-session project reopen.
+
+If a saved MultiTrack project cannot be restored because storage is temporarily
+unavailable or the file has conflicting copies, its desktop reference is kept
+and **Retry saved MultiTrack project** is offered. Unsaved scratch audio asks
+for confirmation before retry. An unavailable `/Session.amss` uses
+`/Session-recovery.amss` as the scratch project name. Missing or invalid
+projects clear their failed restore reference. Local registered-account desktop
+and phone-sized tests used a real WAV and editable project, injected a read
+failure, cancelled and accepted retry, sample-checked the recovered mixdown,
+synced and reopened the project in a fresh browser. Physical audio hardware,
+physical touch and other failure types remain unverified.
 Physical touch and audio hardware were not tested.
