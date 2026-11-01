@@ -137,3 +137,15 @@ check both PCM warnings, cancellation, a changed-track race, float output,
 server sync and fresh-session reopening. Mono and stereo checks also verify
 sample rate, frame count, channel count and channel order. Physical audio devices
 are untested.
+
+Single-file **Open from My files** currently accepts mono and stereo audio.
+It refuses files with more than two decoded channels before replacing the open
+track: the bundled editor's channel selection is initialized only for mono and
+stereo, and a four-channel Reverse was observed reporting success without
+changing its samples. The original file and current track remain intact. A
+local registered-account desktop and emulated-phone test reversed and saved a
+stereo file, refused a four-channel WAV, checked the unsaved-close guard,
+synchronized the result, and reopened it in a fresh browser. This guard applies
+to account-backed single-file opening; upstream computer drag/import and
+MultiTrack sources have not yet been qualified for multichannel input. Physical
+touch and audio hardware remain unverified.
