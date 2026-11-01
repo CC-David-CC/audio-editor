@@ -5,6 +5,8 @@ Use File → Open from My files and File → Save WAV for the account-scoped bro
 run in the browser; audio is not sent to a separate editing service.
 
 Use the File menu's **Try 440 Hz tone** to begin without an existing file. For more than one track, switch to MultiTrack, add tracks from My files and use **Save MultiTrack project** to keep the editable session. **Save WAV** is for a single track; use **Export MultiTrack mixdown WAV** for combined audio. A mixdown is not an editable project. Input and encoded WAV output are limited to 128 MiB. WAV encoding runs in a worker and can be cancelled; decoding and effects can require much more memory than the compressed input, so large files may still fail on a device with limited memory. A compressed file can also expand beyond the WAV output limit.
+
+MultiTrack export uses the browser's offline audio renderer. If rendering fails, export reports the error and does not save a WAV: AudioMass's alternative synchronous mixer has different panning and could produce a different mix. The editable session remains unsaved until explicitly saved as a project. Local desktop and emulated-phone account tests cover rejected renders, a successful retry, sample-checked mixdowns and server synchronization; device-specific codecs and physical phones are not covered by those tests.
 Device audio codecs and memory limit which files can be decoded.
 
 Only one account-file chooser can be pending in a window. If the audio changes

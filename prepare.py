@@ -30,6 +30,16 @@ needle='\t\tq.getState = cloneState;\n'
 if source.count(needle)!=1:raise RuntimeError('Unexpected AudioMass multitrack API')
 adapter=(HERE/'multitrack-transaction.js').read_text()
 source=source.replace(needle,needle+'\n'+adapter+'\n')
+# A failed OfflineAudioContext render must not silently export the upstream
+# fallback mixer: its panning and resampling can produce different audio.
+# Keep upstream behavior for other callers; the desktop opts into strict mode.
+for old,new in [
+ ('function MixdownAsync ( selection, done ) {','function MixdownAsync ( selection, done, strict ) {'),
+ ('finish ( Mixdown ( selection ) );','finish ( strict ? null : Mixdown ( selection ) );'),
+ ('done ( Mixdown ( selection ) );','done ( strict ? null : Mixdown ( selection ) );'),
+ ('var pan = render_ctx.createStereoPanner ? render_ctx.createStereoPanner () : null;\n\t\t\t\tvar when', 'var pan = render_ctx.createStereoPanner ? render_ctx.createStereoPanner () : null;\n\t\t\t\tif (strict && !pan) return finish ( null );\n\t\t\t\tvar when')]:
+ if source.count(old)!=1:raise RuntimeError('Unexpected AudioMass mixdown fallback')
+ source=source.replace(old,new)
 # Beat controls are persisted in part by AudioMass, but upstream does not send
 # its change event when they are edited. The desktop must guard unsaved work.
 patches=[
