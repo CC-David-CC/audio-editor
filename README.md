@@ -49,3 +49,5 @@ to My files instead. Save an editable MultiTrack project with **File → Save Mu
 can require much more memory during the two decodes. Physical touch, other
 audio formats, full multitrack editing and hardware audio remain unverified.
 No third-party account or cloud feature was removed in this review.
+
+Changing the beat controls marks the session unsaved, so closing prompts before discarding changes. Saved tempo restores in an editable project; beat/snap enabled state is not retained. Desktop and emulated-phone account tests and a live emulated-phone test cover a tempo change, close cancellation, save and reopen. Physical touch remains unverified.

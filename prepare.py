@@ -29,7 +29,20 @@ source=multitrack.read_text()
 needle='\t\tq.getState = cloneState;\n'
 if source.count(needle)!=1:raise RuntimeError('Unexpected AudioMass multitrack API')
 adapter=(HERE/'multitrack-transaction.js').read_text()
-multitrack.write_text(source.replace(needle,needle+'\n'+adapter+'\n'))
+source=source.replace(needle,needle+'\n'+adapter+'\n')
+# Beat controls are persisted in part by AudioMass, but upstream does not send
+# its change event when they are edited. The desktop must guard unsaved work.
+patches=[
+ ('\t\t\tbeat_on = !!val;\n','\t\t\tvar changed = beat_on !== !!val;\n\t\t\tbeat_on = !!val;\n'),
+ ('\t\t\tif (!beat_on) beat_snap = false;\n\t\t\tupdateBeatUI ();','\t\t\tif (!beat_on) beat_snap = false;\n\t\t\tif (changed) app.fireEvent (\'DidUpdateMultitrack\');\n\t\t\tupdateBeatUI ();'),
+ ('\t\t\tbeat_snap = beat_on && !!val;\n\t\t\tupdateBeatUI ();','\t\t\tvar next = beat_on && !!val;\n\t\t\tvar changed = beat_snap !== next;\n\t\t\tbeat_snap = next;\n\t\t\tif (changed) app.fireEvent (\'DidUpdateMultitrack\');\n\t\t\tupdateBeatUI ();'),
+ ('\t\t\t\tbeat_bpm = next;\n\t\t\t\trequestBeatGrid ();','\t\t\t\tbeat_bpm = next;\n\t\t\t\tapp.fireEvent (\'DidUpdateMultitrack\');\n\t\t\t\trequestBeatGrid ();'),
+ ('\t\t\t\t\tbeat_sig = beat_sigs[(i + 1) % beat_sigs.length];\n','\t\t\t\t\tbeat_sig = beat_sigs[(i + 1) % beat_sigs.length];\n\t\t\t\t\tapp.fireEvent (\'DidUpdateMultitrack\');\n'),
+ ('\t\t\tbeat_sig = \'4/4\';\n\t\t\tupdateBeatUI ();','\t\t\tbeat_sig = \'4/4\';\n\t\t\tapp.fireEvent (\'DidUpdateMultitrack\');\n\t\t\tupdateBeatUI ();')]
+for old,new in patches:
+ if source.count(old)!=1:raise RuntimeError('Unexpected AudioMass beat controls')
+ source=source.replace(old,new)
+multitrack.write_text(source)
 for name in ['LICENSE','THIRD_PARTY_NOTICES.md']:(root/(name+'.txt')).write_bytes(archive.extractfile(archive.getmember(prefix+name)).read())
 scripts=names[1:25]
 html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="main.css"></head><body><div id="app"></div>'+''.join('<script src="'+s+'"></script>' for s in scripts)+'<script src="bootstrap.js"></script></body></html>'
