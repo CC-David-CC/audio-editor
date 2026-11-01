@@ -145,7 +145,15 @@ stereo, and a four-channel Reverse was observed reporting success without
 changing its samples. The original file and current track remain intact. A
 local registered-account desktop and emulated-phone test reversed and saved a
 stereo file, refused a four-channel WAV, checked the unsaved-close guard,
-synchronized the result, and reopened it in a fresh browser. This guard applies
-to account-backed single-file opening; upstream computer drag/import and
-MultiTrack sources have not yet been qualified for multichannel input. Physical
+synchronized the result, and reopened it in a fresh browser. Account-backed single-file and MultiTrack imports, MultiTrack projects, the
+computer file chooser and file drops are checked before import. Files with more
+than two channels are refused; a mixed drop is rejected as a whole. Existing
+work is retained. A real mono AIFF and mono WAV still import through the
+MultiTrack lane, and a four-channel AIFF is refused. Local registered-account
+desktop and emulated-phone tests exercise a real computer file input, synthetic
+Chromium drops, a generated four-channel project, a declined close, a cancelled replacement,
+a simulated edit during confirmation, and
+three-clip project sync and fresh-session reopen. Checks decode browser audio
+before the upstream import decodes it again, which can increase load time and
+memory use. Some unusual codecs and programmatic upstream entry points, physical
 touch and audio hardware remain unverified.
