@@ -79,3 +79,10 @@ and emulated-phone checks followed the example through an effect, WAV save,
 server sync, and fresh-session reopen. The MultiTrack mixdown workflow also
 passed in both layouts, including timed clips, mute and sampled WAV output.
 Physical phone touch and audio hardware remain unverified.
+
+The MultiTrack mode control is reachable with Tab and reports whether it is
+pressed. Enter and Space keep focus on the control after switching modes. Local
+registered-account desktop and phone-sized tests exercised keyboard activation,
+adding a track from My files, saving and syncing an editable project, and
+reopening it in a fresh session. Phone tests used simulated hardware keys;
+physical touch and assistive technology behavior remain unverified.
