@@ -45,11 +45,7 @@ file from the account drive into a track. The app checks that it can be decoded
 before handing it to AudioMass and asks before closing during the import. It
 also keeps the separate drag-from-computer path. The upstream multitrack sample
 link is omitted because its MP3 assets are not packaged; the empty view points
-to My files instead. MultiTrack project save/export remains unavailable and is
-still deferred: imported tracks and edits must not be treated as a saved
-session. Local desktop and emulated-phone tests import two WAV files, verify
-actual decoded samples, reject invalid input and exercise the pending-close
-warning. They observed no third-party HTTP requests in those flows. Large files
+to My files instead. MultiTrack projects cannot be saved and reopened for editing; a stereo mixdown can be exported using **File → Export MultiTrack mixdown WAV**. The WAV contains the rendered audio, not editable tracks. Project saving is still deferred: imported tracks and edits must not be treated as a saved session. Local desktop and emulated-phone tests import WAV files, verify rendered timing and samples, check server synchronization, reject invalid input and exercise failure and close guards. They observed no third-party HTTP requests in those flows. Large files
 can require much more memory during the two decodes. Physical touch, other
 audio formats, full multitrack editing and hardware audio remain unverified.
 No third-party account or cloud feature was removed in this review.
