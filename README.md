@@ -51,3 +51,9 @@ audio formats, full multitrack editing and hardware audio remain unverified.
 No third-party account or cloud feature was removed in this review.
 
 Changing the beat controls marks the session unsaved, so closing prompts before discarding changes. Saved tempo and beat/snap enabled state restore in an editable project. Desktop and emulated-phone account tests and a live emulated-phone test cover a tempo change, close cancellation, save and reopen. Physical touch remains unverified.
+
+If an ordinary audio file used to restore a window is missing or cannot be
+decoded, its failed restore reference is cleared; the original file is left
+untouched. Local desktop and emulated-phone account tests cover invalid and
+missing WAV files, generating and saving a tone, server sync and refresh.
+Physical touch and audio hardware remain unverified.
