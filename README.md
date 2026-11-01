@@ -25,6 +25,11 @@ Choose **Try 440 Hz tone** to generate a one-second mono example locally without
 
 AudioMass effects that use asynchronous OfflineAudioContext rendering must finish before opening, replacing or saving the track; if one is still running, the editor asks you to wait and try again. A saved or opened file is the track restored with the desktop window. Starting a new unsaved example clears the prior file reference; the example itself is not recovered after a page reload unless saved. Local desktop, emulated-phone and 4K and live emulated-phone tests hold a Reverse render, verify Save waits, check the resulting WAV sample, and test both restored and unsaved window states. Other effects and physical touch remain unverified.
 
+Closing a window while an effect or WAV save is still in progress asks for
+confirmation, even if the track was clean when the operation began. Keep the
+window open to let it finish. Closing during an already dispatched file write
+does not guarantee that the write can be cancelled.
+
 The current release moves account-file actions into AudioMass’s File menu and suppresses the delayed automatic welcome screen; Help retains the explicit welcome action. A fallback toolbar remains if the pinned editor menu cannot be found. Local desktop, emulated-phone and 4K-sized tests cover menu clicks, save options, replacement cancellation and stale-target protection, Save As, server sync and reopening. One parallel phone run timed out at login; a separate rerun passed. Physical touch remains unverified. The updated desktop and emulated-phone account workflow also covers upload, reverse, WAV precision and fresh-session recovery; independent simulated microphone cleanup passed in both sizes. Desktop layout restoration, source conflict handling and missing-menu fallback passed locally. The AudioMass, Tone and WaveSurfer integration test passed locally on desktop and emulated-phone views; its first run waited on a newly themed discard prompt until the test was updated. A local file larger than 32 MiB also opened, saved, synced and retained its samples.
 
 Re-running prepare.py preserves the WAV worker declaration. The prepared build was retested for save and reopen on desktop and emulated phone; its phone File menu and actions now have 44 px targets, checked with emulated taps. Physical phone behavior remains unverified.
