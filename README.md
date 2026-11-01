@@ -117,3 +117,13 @@ failure, cancelled and accepted retry, sample-checked the recovered mixdown,
 synced and reopened the project in a fresh browser. Physical audio hardware,
 physical touch and other failure types remain unverified.
 Physical touch and audio hardware were not tested.
+
+MultiTrack mixdown warns before writing a 16- or 24-bit PCM WAV if rendered
+samples exceed the representable range. Cancel leaves the destination alone;
+you can reduce the master volume or choose 32-bit float to retain headroom, or
+explicitly export the clipped PCM. A change while the warning is open cancels
+the export. A local registered-account desktop and emulated-phone test mixed
+two loud tracks, compared real-time Web Audio preview samples with the offline
+mix, checked both PCM warnings and float samples, synced the files, and reopened
+the editable project. The warning detects values beyond full scale, not every
+kind of distortion; physical speakers and touch devices were not tested.

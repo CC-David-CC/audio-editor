@@ -1,7 +1,7 @@
 import './style.css';
 import {wavSampleRate} from './wav-info.mjs';
 import {checkSession} from './amss-check.mjs';
-function encodeWav(buffer,signal,current,format){
+function encodeWav(buffer,signal,current,format,onClipping=()=>{}){
  const {length,numberOfChannels,sampleRate}=buffer,bytes=format==='pcm16'?2:format==='pcm24'?3:4,header=format==='float32'?56:44,dataSize=length*numberOfChannels*bytes,size=header+dataSize+(dataSize%2);
  if(!length||!Number.isSafeInteger(size)||size>128*1024*1024)throw Error('Edited audio is too large to save as WAV (128 MiB maximum).');
  return new Promise((resolve,reject)=>{
@@ -9,7 +9,7 @@ function encodeWav(buffer,signal,current,format){
   const finish=(error,value)=>{if(finished)return;finished=true;signal.removeEventListener('abort',abort);worker.terminate();error?reject(error):resolve(value);};
   const abort=()=>finish(new Error('Save cancelled.'));signal.addEventListener('abort',abort,{once:true});
   worker.onerror=()=>finish(new Error('Audio conversion failed.'));
-  worker.onmessage=({data:m})=>{try{if(signal.aborted)return abort();if(!current())return finish(new Error('Audio changed during conversion. Save again.'));if(m.type==='error')return finish(new Error(m.message));if(m.type==='done')return finish(null,m.blob);if(m.type!=='ready')throw Error('Unexpected audio conversion response.');const end=Math.min(offset+262144,length),parts=[];for(let i=0;i<numberOfChannels;i++)parts.push(buffer.getChannelData(i).slice(offset,end));worker.postMessage({type:'chunk',offset,parts},parts.map(p=>p.buffer));offset=end;}catch(e){finish(e);}};
+  worker.onmessage=({data:m})=>{try{if(signal.aborted)return abort();if(!current())return finish(new Error('Audio changed during conversion. Save again.'));if(m.type==='error')return finish(new Error(m.message));if(m.type==='done'){onClipping(m.clippedSamples||0);return finish(null,m.blob);}if(m.type!=='ready')throw Error('Unexpected audio conversion response.');const end=Math.min(offset+262144,length),parts=[];for(let i=0;i<numberOfChannels;i++)parts.push(buffer.getChannelData(i).slice(offset,end));worker.postMessage({type:'chunk',offset,parts},parts.map(p=>p.buffer));offset=end;}catch(e){finish(e);}};
   if(signal.aborted)return abort();worker.postMessage({type:'start',length,numberOfChannels,sampleRate,format});
  });
 }
@@ -94,7 +94,8 @@ export function mount(host){
    const signal=encodeController.signal;
    const buffer=await new Promise((resolve,reject)=>{let done=false;const timer=setTimeout(()=>finish(Error('The mixdown took too long. Try a shorter session.')),120000);function finish(error,value){if(done)return;done=true;clearTimeout(timer);signal.removeEventListener('abort',abort);error?reject(error):resolve(value)}function abort(){finish(Error('Export cancelled.'))}signal.addEventListener('abort',abort,{once:true});if(signal.aborted)return abort();try{mt.MixdownAsync(null,value=>finish(null,value),true)}catch(e){finish(e)}});
    if(!buffer)throw Error('Could not render the MultiTrack audio. No WAV was saved; try again.');if(!unchanged())throw Error('The MultiTrack session changed. Try exporting again.');
-   tell('Preparing mixdown WAV…');const data=await encodeWav(buffer,signal,unchanged,format);if(!unchanged())throw Error('The MultiTrack session changed. Try exporting again.');
+   tell('Preparing mixdown WAV…');let clipped=0;const data=await encodeWav(buffer,signal,unchanged,format,count=>clipped=count);if(!unchanged())throw Error('The MultiTrack session changed. Try exporting again.');
+   if(clipped){if(!await host.ui.confirm('This mix exceeds the range of '+(format==='pcm16'?'16':'24')+'-bit PCM WAV. Exporting will clip peaks and distort the audio. Cancel to lower the master volume or choose 32-bit float WAV, or export the clipped mix.',{title:'Mix will clip',confirmLabel:'Export clipped',cancelLabel:'Cancel',danger:true,signal:host.signal})){tell('Mixdown export cancelled; no file was changed.');return;}if(signal.aborted)throw Error('Export cancelled.');if(!unchanged())throw Error('The MultiTrack session changed. Try exporting again.');}
    const result=await c.files.write(p,data,version);if(!valid()||!c.valid())return;mixdownPath=p;mixdownCustom=p!==suggestMixdown(projectPath);
    tell(result.status==='conflict'?'Mixdown saved locally with a conflict. Resolve it in Files. The MultiTrack session itself is not saved.':'Mixdown saved on this device; syncing with server: '+p+'. The MultiTrack session itself is not saved.');
   }catch(e){tell('Could not export mixdown: '+e.message);}finally{encodeController=null;cancelSave.disabled=true;frame.inert=false;saving=false;busy=false;}
