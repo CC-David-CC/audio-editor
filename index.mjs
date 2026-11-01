@@ -36,7 +36,7 @@ export function mount(host){
    const c=await mirrorFileContext(),p=c.path(target);if(!/\.amss$/i.test(p))throw Error('Choose an .amss project.');
    const file=await c.files.read(p);if(file.status==='conflict')throw Error('Resolve the file conflict in Files first.');if(file.data.byteLength>128*1024*1024)throw Error('Projects are limited to 128 MiB.');
    if(!valid()||!c.valid())return;if(state.edits!==changes)throw Error('Audio changed while opening. Try again.');
-   checkSession(file.data);const data=file.data.slice().buffer,decoded=app.amss?.DecodeMultitrack(data);
+   const {beatSettings}=checkSession(file.data);const data=file.data.slice().buffer,decoded=app.amss?.DecodeMultitrack(data);if(decoded&&beatSettings)Object.assign(decoded,beatSettings);
    if(!decoded||!Array.isArray(decoded.tracks)||!Array.isArray(decoded.clips)||!decoded.tracks.length||decoded.tracks.length>1024||decoded.clips.length>10000||decoded.clips.some(x=>!x.buffer||![x.start,x.in,x.out,x.fi,x.fo].every(Number.isFinite)||x.start<0||x.in<0||x.out<x.in||x.out>x.buffer.duration+0.001))throw Error('This project is invalid or unsupported.');
    if(!valid()||!c.valid())return;if(state.edits!==changes)throw Error('Audio changed while opening. Try again.');
    if(typeof app.multitrack.LoadDecodedSession!=='function')throw Error('This AudioMass build cannot safely open projects.');
@@ -50,7 +50,7 @@ export function mount(host){
   if(effectActive()||microphoneActive()||mt.IsRecording?.()){tell('Stop recording or audio processing before saving a project.');return;}
   busy=true;saving=true;const changes=state.edits;
   try{
-   const value=await host.ui.prompt('Save editable MultiTrack project to My files. Beat/snap settings are not retained and long names may be shortened:',{title:'Save MultiTrack project',value:projectPath,confirmLabel:'Save',signal:host.signal});if(value===null||!valid())return;
+   const value=await host.ui.prompt('Save editable MultiTrack project to My files. Long names may be shortened:',{title:'Save MultiTrack project',value:projectPath,confirmLabel:'Save',signal:host.signal});if(value===null||!valid())return;
    const c=await mirrorFileContext(),p=c.path(value);if(!/\.amss$/i.test(p))throw Error('Project names must end in .amss.');
    let version=null,found=false;try{const existing=await c.files.stat(p);found=true;if(existing.status==='conflict')throw Error('Resolve the file conflict in Files first.');if(p===projectPath&&projectVersion){if(existing.version!==projectVersion)throw Error('The saved project changed. Save a copy or reopen it.');}else{if(!await host.ui.confirm('Replace '+p+'?',{title:'Replace project?',confirmLabel:'Replace',cancelLabel:'Keep existing',danger:true,signal:host.signal}))return;if(!valid()||!c.valid())return;const now=await c.files.stat(p);if(now.status==='conflict'||now.version!==existing.version)throw Error('The project changed while confirming. Try again.');}version=existing.version;}catch(e){if(e.message!=='File not found.')throw e;if(found||p===projectPath&&projectVersion)throw Error('The saved project was removed. Save a copy or reopen it.');}
    if(!valid()||!c.valid()||app!==editor||!mt.IsOn()||state.edits!==changes)throw Error('The MultiTrack session changed. Try saving again.');
@@ -58,8 +58,11 @@ export function mount(host){
    const seen=new Set();let bytes=65536;for(const clip of model.clips){if(!clip.buffer)throw Error('A track has no audio.');if(!seen.has(clip.buffer)){seen.add(clip.buffer);bytes+=clip.buffer.length*clip.buffer.numberOfChannels*4;}}if(!Number.isSafeInteger(bytes)||bytes>128*1024*1024)throw Error('This project exceeds the 128 MiB limit.');
    const fw=frame.contentWindow,originalURL=fw.URL.createObjectURL,originalClick=fw.HTMLAnchorElement.prototype.click;let blob=null;
    try{fw.URL.createObjectURL=function(value){blob=value;return 'blob:codi-session-captured'};fw.HTMLAnchorElement.prototype.click=function(){};if(!editor.amss.ExportMultitrack(p,model)||!blob)throw Error('AudioMass could not serialize the project.');}finally{fw.URL.createObjectURL=originalURL;fw.HTMLAnchorElement.prototype.click=originalClick;}
-   if(blob.size>128*1024*1024)throw Error('This project exceeds the 128 MiB limit.');if(!valid()||!c.valid()||state.edits!==changes)throw Error('The MultiTrack session changed. Try saving again.');
-   const result=await c.files.write(p,new Blob([blob]),version);if(!valid()||!c.valid())return;projectPath=p;projectVersion=result.version;state.path=p;state.savedPath=p;state.version=result.version;state.dirty=state.edits!==changes;w.launchContext=Object.freeze({version:1,storage:'mirror',path:p,owner});w.title=p.split('/').pop()+' — Audio Editor';watch(c,p,result.version);tell(result.status==='conflict'?'Project saved locally with a conflict. Resolve it in Files.':state.dirty?'Saved earlier changes; newer edits are unsaved.':'MultiTrack project saved on this device; syncing with server: '+p+'. Beat/snap settings are not retained; long names may be shortened.');
+   if(blob.size+8>128*1024*1024)throw Error('This project exceeds the 128 MiB limit.');if(!valid()||!c.valid()||state.edits!==changes)throw Error('The MultiTrack session changed. Try saving again.');
+   // AudioMass ignores unknown 8-byte metadata tags. Keep its format readable
+   // while preserving settings its native serializer omits in this desktop.
+   const beatFlags=(model.beat_on?1:0)|(model.beat_on&&model.beat_snap?2:0),beatChunk=new Uint8Array([67,68,66,84,beatFlags,0,0,0]);
+   const result=await c.files.write(p,new Blob([blob,beatChunk]),version);if(!valid()||!c.valid())return;projectPath=p;projectVersion=result.version;state.path=p;state.savedPath=p;state.version=result.version;state.dirty=state.edits!==changes;w.launchContext=Object.freeze({version:1,storage:'mirror',path:p,owner});w.title=p.split('/').pop()+' — Audio Editor';watch(c,p,result.version);tell(result.status==='conflict'?'Project saved locally with a conflict. Resolve it in Files.':state.dirty?'Saved earlier changes; newer edits are unsaved.':'MultiTrack project saved on this device; syncing with server: '+p+'. Long names may be shortened.');
   }catch(e){tell('Could not save project: '+e.message);}finally{saving=false;busy=false;}
  }
  async function exportMixdown(){
