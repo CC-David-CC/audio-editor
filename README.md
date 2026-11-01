@@ -9,6 +9,11 @@ session and its own session exports are not yet saved through Files; Save WAV
 reports that limitation rather than silently dropping tracks. Input and encoded WAV output are limited to 128 MiB. WAV encoding runs in a worker and can be cancelled; decoding and effects can require much more memory than the compressed input, so large files may still fail on a device with limited memory. A compressed file can also expand beyond the WAV output limit.
 Device audio codecs and memory limit which files can be decoded.
 
+Only one account-file chooser can be pending in a window. If the audio changes
+while choosing, the selection is not opened; choose the file again. Closing the
+window invalidates a pending chooser result. This does not cancel a file write
+already sent to storage.
+
 AudioMass upstream and its bundled third-party notices are packaged with the
 app. `python3 apps/system/audio-editor/prepare.py` fetches the exact upstream
 commit and verifies its SHA-256 before assembling ignored local dependencies;
