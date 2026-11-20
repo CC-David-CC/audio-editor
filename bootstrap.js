@@ -33,4 +33,19 @@ if(offline?.prototype?.startRendering){
  };
 }
 window.codiAudioRenderPending=()=>audioRenderPending>0;
+document.addEventListener('click', event=>{
+ const action=event.target.closest?.('[data-webos-audio-action]');
+ if(!action)return;
+ event.preventDefault();
+ switch(action.dataset.webosAudioAction){
+  case 'sample':PKAudioEditor.engine.LoadSample();break;
+  case 'cancel':PKAudioEditor.fireEvent('RequestCancelModal');break;
+  case 'draft':{
+   const id=decodeURIComponent(action.dataset.webosDraft),mode=action.dataset.webosMode;
+   if(mode)PKAudioEditor.fireEvent('LoadDraft',id,Number(mode));
+   else PKAudioEditor.fireEvent('LoadDraft',id);
+   break;
+  }
+ }
+});
 window.codiAudio=PKAudioEditor.init('app');

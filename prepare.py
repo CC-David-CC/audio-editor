@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fetch a pinned upstream source archive into ignored local dependencies."""
-import hashlib, io, json, pathlib, tarfile, urllib.request
+import hashlib, io, json, pathlib, re, tarfile, urllib.request
 HERE=pathlib.Path(__file__).resolve().parent
 COMMIT='21f5ee1362a47be6f0dbe6e4969a15e43d21b044'
 SHA='de7ed18349e4caed8d0025d56a3d620cbe79244f1345b3728089f5b55f834bf3'
@@ -14,6 +14,23 @@ for name in names:
  member=archive.getmember(prefix+'src/'+name)
  if not member.isfile():raise RuntimeError('Invalid archive member')
  target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(archive.extractfile(member).read())
+# Replace inline actions in the pinned editor markup with delegated clicks.
+ui=root/'ui.js'
+source=ui.read_text()
+draft_action=re.compile(
+    r'''onclick="PKAudioEditor\.fireEvent\(\\'LoadDraft\\',\\'' \+ curr\.id \+\s*'\\'(?:,\s*([123]))?\);"''')
+def draft_attributes(match):
+    mode=match[1] or ''
+    return f'''data-webos-audio-action="draft" data-webos-draft="' + encodeURIComponent(curr.id) + '" data-webos-mode="{mode}"'''
+source,replaced=draft_action.subn(draft_attributes,source)
+if replaced!=4:raise RuntimeError('Unexpected AudioMass draft actions')
+for old,new in [
+    ('onclick="PKAudioEditor.engine.LoadSample()"','data-webos-audio-action="sample"'),
+    (r'''onclick="PKAudioEditor.fireEvent(\'RequestCancelModal\');"''','data-webos-audio-action="cancel"'),
+]:
+    if source.count(old)!=1:raise RuntimeError('Unexpected AudioMass inline action')
+    source=source.replace(old,new)
+ui.write_text(source)
 # Preserve the explicit Help → See Welcome Message action, but suppress the
 # delayed automatic welcome modal, which otherwise interrupts desktop actions.
 welcome=root/'welcome.js'
