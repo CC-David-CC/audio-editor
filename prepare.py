@@ -76,5 +76,6 @@ html='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" con
 html=html.replace('<link rel="stylesheet" href="main.css">','<link rel="stylesheet" href="main.css"><link rel="stylesheet" href="frame.css">')
 (root/'index.html').write_text(html);(root/'bootstrap.js').write_bytes((HERE/'bootstrap.js').read_bytes());(root/'frame.css').write_bytes((HERE/'frame.css').read_bytes())
 assets=['node_modules/audiomass/'+n for n in names+['LICENSE.txt','THIRD_PARTY_NOTICES.md.txt','index.html','bootstrap.js','frame.css']]
+assets.append('bruno-weather.mp3')
 (HERE/'app.json').write_text(json.dumps({'assets':assets,'workers':{'wav':'wav-worker.mjs'}},indent=2)+'\n')
 print('Prepared AudioMass',COMMIT)
